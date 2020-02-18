@@ -7,20 +7,20 @@ class MoviesController < ApplicationController
   def show
     id = params[:id] # retrieve movie ID from URI route
     @movie = Movie.find(id) # look up movie by unique ID
-    @titleOrdered = false
-    @dateOrdered = false
-    # will render app/views/movies/show.<extension> by default
   end
 
   def index
+    @titleOrdered = false
+    @dateOrdered = false
+    @all_ratings = Movie.order(:rating).select(:rating).map(&:rating).uniq
     if params[:orderby] == 'title'
-      @movies = Movie.all.order(:title)
+      @movies = Movie.order(:title).where(rating: selected_ratings)
       @titleOrdered = true
     elsif params[:orderby] == 'release_date'
-      @movies = Movie.all.order(:release_date)
+      @movies = Movie.order(:release_date).where(rating: selected_ratings)
       @dateOrdered = true
     else
-      @movies = Movie.all
+      @movies = Movie.all.where(rating: selected_ratings)
     end
   end
 
@@ -51,5 +51,12 @@ class MoviesController < ApplicationController
     flash[:notice] = "Movie '#{@movie.title}' deleted."
     redirect_to movies_path
   end
-
+  
+  def selected_ratings
+    if params[:ratings]
+      params[:ratings].keys
+    else
+      @all_ratings
+    end
+  end
 end
