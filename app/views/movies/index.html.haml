@@ -4,9 +4,11 @@
 %table#movies.table.table-striped.col-md-12
   %thead
     %tr
-      %th Movie Title
+      %th
+        %a#title_header{href: root_path(orderby: "title"), class: ("hilite" if @titleOrdered)} Movie Title
       %th Rating
-      %th Release Date
+      %th 
+        %a#release_date_header{href: root_path(orderby: "release_date"), class: ("hilite" if @dateOrdered)} Release Date
       %th More Info
   %tbody
     - @movies.each do |movie|
