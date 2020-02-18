@@ -13,17 +13,31 @@ class MoviesController < ApplicationController
     @titleOrdered = false
     @dateOrdered = false
     @all_ratings = Movie.order(:rating).select(:rating).map(&:rating).uniq
-    if params[:orderby] == 'title'
+    if orderby? == 'title'
       @movies = Movie.order(:title).where(rating: selected_ratings)
       @titleOrdered = true
-    elsif params[:orderby] == 'release_date'
+    elsif orderby? == 'release_date'
       @movies = Movie.order(:release_date).where(rating: selected_ratings)
       @dateOrdered = true
     else
       @movies = Movie.all.where(rating: selected_ratings)
     end
+    session[:orderby] = params[:orderby]
+    session[:ratings] = selected_ratings
   end
-
+  
+  def orderby?
+    if params[:orderby]
+      if params[:orderby].length == 0
+        session[:orderby]
+      else
+        params[:orderby]
+      end
+    else
+      session[:orderby]
+    end
+  end
+    
   def new
     # default: render 'new' template
   end
@@ -53,10 +67,14 @@ class MoviesController < ApplicationController
   end
   
   def selected_ratings
-    if params[:ratings]
+    if params[:ratings] and params[:ratings].length != 0
       params[:ratings].keys
     else
-      @all_ratings
+      if session[:ratings] and session[:ratings].length !=0
+        session[:ratings]
+      else
+        @all_ratings
+      end
     end
   end
 end
